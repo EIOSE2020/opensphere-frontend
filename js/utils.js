@@ -35,6 +35,15 @@ function escapeHtml(text) {
 // Afficher un toast
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
+    if (!container) {
+        // Créer le conteneur s'il n'existe pas
+        const newContainer = document.createElement('div');
+        newContainer.className = 'toast-container';
+        newContainer.id = 'toastContainer';
+        document.body.appendChild(newContainer);
+        return showToast(message, type);
+    }
+    
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
@@ -79,4 +88,77 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// ===== GESTION DE L'AUTHENTIFICATION =====
+
+/**
+ * Vérifier si l'utilisateur est connecté
+ * @returns {Object|null} L'utilisateur connecté ou null
+ */
+function isUserLoggedIn() {
+    try {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * Déconnecter l'utilisateur
+ */
+function logoutUser() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    showToast('Déconnexion réussie', 'info');
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 500);
+}
+
+/**
+ * Rediriger vers la page de connexion si non connecté
+ * @returns {boolean} True si connecté, false sinon
+ */
+function requireAuth() {
+    const user = isUserLoggedIn();
+    if (!user) {
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Obtenir le token d'authentification
+ * @returns {string|null} Le token JWT ou null
+ */
+function getAuthToken() {
+    return localStorage.getItem('authToken') || null;
+}
+
+/**
+ * Définir les informations de l'utilisateur après connexion
+ * @param {Object} userData - Données de l'utilisateur
+ * @param {string} token - Token JWT
+ */
+function setUserSession(userData, token) {
+    localStorage.setItem('user', JSON.stringify(userData));
+    if (token) {
+        localStorage.setItem('authToken', token);
+    }
+    showToast(`Bienvenue ${userData.displayName || userData.username || 'Utilisateur'} !`, 'success');
+}
+
+/**
+ * Mettre à jour les informations de l'utilisateur
+ * @param {Object} userData - Nouvelles données
+ */
+function updateUserSession(userData) {
+    const currentUser = isUserLoggedIn();
+    if (currentUser) {
+        const updatedUser = { ...currentUser, ...userData };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
 }

@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenSphere - Réseau Social Souverain</title>
-    <meta name="description" content="OpenSphere - Le réseau social décentralisé nouvelle génération." />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,16 +46,30 @@
                 <a href="messages.html" class="nav-link" title="Messages">
                     <i class="fas fa-envelope"></i>
                 </a>
+                
                 <button class="btn-post" id="openPostModal">
                     <i class="fas fa-plus"></i>
                     <span>Poster</span>
                 </button>
-                <div class="profile-avatar" id="profileAvatar" onclick="window.location.href='profile.html'">
-                    <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                
+                <!-- ===== BOUTONS CONNEXION / DÉCONNEXION ===== -->
+                <!-- Affiché quand l'utilisateur est déconnecté -->
+                <div id="authButtons">
+                    <a href="login.html" class="btn-login" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Connexion</span>
+                    </a>
                 </div>
-                <button class="btn-logout" id="logoutBtn" title="Déconnexion">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+                
+                <!-- Affiché quand l'utilisateur est connecté -->
+                <div id="userMenu" style="display: none;">
+                    <div class="profile-avatar" id="profileAvatar" onclick="window.location.href='profile.html'">
+                        <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                    </div>
+                    <button class="btn-logout" id="logoutBtn" title="Déconnexion">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -217,7 +230,7 @@
 
                     <!-- Feed Posts -->
                     <div class="feed-posts" id="feedPosts">
-                        <!-- Les posts seront injectés dynamiquement -->
+                        <!-- Les posts seront injectés dynamiquement ici -->
                     </div>
 
                     <!-- Load More -->
