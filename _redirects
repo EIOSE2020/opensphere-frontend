@@ -1,0 +1,8 @@
+# _redirects - Configuration Netlify pour le SPA
+# Ce fichier doit être à la RACINE du projet
+
+# Redirection pour le SPA (Single Page Application)
+/*    /index.html    200
+
+# Redirection 404 personnalisée
+# /404.html   404

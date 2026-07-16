@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenSphere - Réseau Social Souverain</title>
+    <meta name="description" content="OpenSphere - Le réseau social décentralisé nouvelle génération." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-globe"></i>
+                    <span>OpenSphere</span>
+                </a>
+            </div>
+
+            <div class="nav-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher sur OpenSphere..." id="searchInput" />
+                </div>
+            </div>
+
+            <div class="nav-right">
+                <a href="index.html" class="nav-link active" title="Accueil">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="explore.html" class="nav-link" title="Explorer">
+                    <i class="fas fa-compass"></i>
+                </a>
+                <a href="communities.html" class="nav-link" title="Communautés">
+                    <i class="fas fa-users"></i>
+                </a>
+                <a href="notifications.html" class="nav-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">3</span>
+                </a>
+                <a href="messages.html" class="nav-link" title="Messages">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <button class="btn-post" id="openPostModal">
+                    <i class="fas fa-plus"></i>
+                    <span>Poster</span>
+                </button>
+                <div class="profile-avatar" id="profileAvatar" onclick="window.location.href='profile.html'">
+                    <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                </div>
+                <button class="btn-logout" id="logoutBtn" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="feed-layout">
+                <!-- Sidebar Left -->
+                <aside class="sidebar-left">
+                    <div class="sidebar-card profile-card">
+                        <div class="profile-cover"></div>
+                        <div class="profile-info">
+                            <img id="sidebarAvatar" src="https://i.pravatar.cc/80?img=11" alt="Avatar" class="profile-avatar-large" />
+                            <h3 id="displayName">Alexandre Martin</h3>
+                            <p class="username" id="displayUsername">@alexandre_web3</p>
+                            <div class="profile-stats">
+                                <div>
+                                    <span class="stat-number" id="followerCount">1,234</span>
+                                    <span class="stat-label">Abonnés</span>
+                                </div>
+                                <div>
+                                    <span class="stat-number" id="followingCount">567</span>
+                                    <span class="stat-label">Abonnements</span>
+                                </div>
+                                <div>
+                                    <span class="stat-number" id="postCount">89</span>
+                                    <span class="stat-label">Posts</span>
+                                </div>
+                            </div>
+                            <div class="profile-badge">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Vérifié Web3</span>
+                                <i class="fas fa-check-circle verified-badge"></i>
+                            </div>
+                            <div class="profile-wallet">
+                                <i class="fas fa-wallet"></i>
+                                <span id="walletAddress">0x7F4...B3E2</span>
+                                <span class="wallet-status online">
+                                    <i class="fas fa-circle"></i> Connected
+                                </span>
+                            </div>
+                            <div class="profile-gasless">
+                                <i class="fas fa-bolt"></i>
+                                <span>Transactions sans gaz actives</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card trending-card">
+                        <h4><i class="fas fa-fire"></i> Tendances</h4>
+                        <div class="trending-item" data-tag="#Web3">
+                            <span class="trending-tag">#Web3</span>
+                            <span class="trending-count">12.4k posts</span>
+                        </div>
+                        <div class="trending-item" data-tag="#OpenSphere">
+                            <span class="trending-tag">#OpenSphere</span>
+                            <span class="trending-count">8.7k posts</span>
+                        </div>
+                        <div class="trending-item" data-tag="#DeFi">
+                            <span class="trending-tag">#DeFi</span>
+                            <span class="trending-count">6.2k posts</span>
+                        </div>
+                        <div class="trending-item" data-tag="#NFT">
+                            <span class="trending-tag">#NFT</span>
+                            <span class="trending-count">4.9k posts</span>
+                        </div>
+                        <div class="trending-item" data-tag="#DAO">
+                            <span class="trending-tag">#DAO</span>
+                            <span class="trending-count">3.1k posts</span>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card communities-card">
+                        <h4><i class="fas fa-rocket"></i> Communautés populaires</h4>
+                        <div class="community-item" data-community="devsdao">
+                            <i class="fas fa-code"></i>
+                            <span>DevsDAO</span>
+                            <span class="community-members">2.3k</span>
+                        </div>
+                        <div class="community-item" data-community="artnft">
+                            <i class="fas fa-palette"></i>
+                            <span>ArtNFT</span>
+                            <span class="community-members">1.8k</span>
+                        </div>
+                        <div class="community-item" data-community="defi">
+                            <i class="fas fa-coins"></i>
+                            <span>DeFi Investors</span>
+                            <span class="community-members">1.2k</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Feed Central -->
+                <section class="feed-container">
+                    <!-- Create Post Box -->
+                    <div class="create-post-box" id="createPostBox">
+                        <img id="postAvatar" src="https://i.pravatar.cc/40?img=11" alt="Avatar" class="post-avatar" />
+                        <input 
+                            type="text" 
+                            placeholder="Quoi de neuf sur OpenSphere ?" 
+                            id="postInput"
+                            class="post-input"
+                        />
+                        <div class="post-actions">
+                            <button class="post-action-btn" id="mediaBtn" title="Ajouter une image">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <button class="post-action-btn" id="videoBtn" title="Ajouter une vidéo">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="post-action-btn" id="hashBtn" title="Ajouter un hashtag">
+                                <i class="fas fa-hashtag"></i>
+                            </button>
+                            <button class="post-action-btn" id="locationBtn" title="Ajouter un lieu">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </button>
+                            <div class="privacy-selector">
+                                <button class="privacy-btn active" data-privacy="public" title="Public">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="privacy-btn" data-privacy="followers" title="Abonnés">
+                                    <i class="fas fa-user-friends"></i>
+                                </button>
+                                <button class="privacy-btn" data-privacy="private" title="Privé">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                            </div>
+                            <button class="btn-submit-post" id="submitPost">
+                                <i class="fas fa-paper-plane"></i>
+                                Publier
+                            </button>
+                        </div>
+                        <div class="gasless-info">
+                            <i class="fas fa-bolt"></i>
+                            <span>Transactions sans frais de gaz (Relayer actif)</span>
+                            <span class="gas-status online">
+                                <i class="fas fa-circle"></i> Connecté
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Feed Filters -->
+                    <div class="feed-filters">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-rss"></i> Pour vous
+                        </button>
+                        <button class="filter-btn" data-filter="following">
+                            <i class="fas fa-user-plus"></i> Abonnements
+                        </button>
+                        <button class="filter-btn" data-filter="trending">
+                            <i class="fas fa-fire"></i> Tendance
+                        </button>
+                        <button class="filter-btn" data-filter="nft">
+                            <i class="fas fa-crown"></i> NFT
+                        </button>
+                    </div>
+
+                    <!-- Feed Posts -->
+                    <div class="feed-posts" id="feedPosts">
+                        <!-- Les posts seront injectés dynamiquement -->
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="load-more-container">
+                        <button class="btn-load-more" id="loadMoreBtn">
+                            <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                            Charger plus
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Sidebar Right -->
+                <aside class="sidebar-right">
+                    <div class="sidebar-card wallet-card">
+                        <h4><i class="fas fa-wallet"></i> Portefeuille</h4>
+                        <div class="wallet-balance">
+                            <span class="balance-amount" id="sphereBalance">2.45</span>
+                            <span class="balance-currency">$SPHERE</span>
+                        </div>
+                        <div class="wallet-balance-usd" id="balanceUsd">≈ $124.50 USD</div>
+                        <div class="wallet-actions">
+                            <button class="wallet-btn" data-action="send"><i class="fas fa-arrow-up"></i> Envoyer</button>
+                            <button class="wallet-btn" data-action="receive"><i class="fas fa-arrow-down"></i> Recevoir</button>
+                            <button class="wallet-btn" data-action="stake"><i class="fas fa-coins"></i> Staker</button>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card tokens-card">
+                        <h4><i class="fas fa-gem"></i> Récompenses</h4>
+                        <div class="token-reward">
+                            <i class="fas fa-diamond"></i>
+                            <span>Diamants reçus</span>
+                            <span class="reward-value" id="diamondsReceived">247</span>
+                        </div>
+                        <div class="token-reward">
+                            <i class="fas fa-star"></i>
+                            <span>Points de réputation</span>
+                            <span class="reward-value" id="reputationPoints">1,892</span>
+                        </div>
+                        <div class="token-reward">
+                            <i class="fas fa-trophy"></i>
+                            <span>Rang</span>
+                            <span class="reward-value" id="userRank">#42</span>
+                        </div>
+                        <button class="btn-claim" id="claimRewardsBtn"><i class="fas fa-gift"></i> Réclamer les récompenses</button>
+                    </div>
+
+                    <div class="sidebar-card community-token-card">
+                        <h4><i class="fas fa-users-cog"></i> Gouvernance</h4>
+                        <div class="proposal-item">
+                            <span class="proposal-title">Vote #12 - Nouveau système de modération</span>
+                            <div class="proposal-stats">
+                                <span class="vote-yes"><i class="fas fa-check"></i> <span id="voteYes">72</span>%</span>
+                                <span class="vote-no"><i class="fas fa-times"></i> <span id="voteNo">28</span>%</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" id="voteProgress" style="width: 72%;"></div></div>
+                            <button class="btn-vote" id="voteBtn">Voter</button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Post Modal -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Créer un post</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-post-input">
+                    <img id="modalAvatar" src="https://i.pravatar.cc/40?img=11" alt="Avatar" class="post-avatar" />
+                    <textarea 
+                        id="modalPostText" 
+                        placeholder="Quoi de neuf sur OpenSphere ?"
+                        rows="4"
+                    ></textarea>
+                </div>
+                <div class="modal-media-preview" id="modalMediaPreview"></div>
+                <div class="modal-actions">
+                    <div class="modal-media-buttons">
+                        <button class="modal-media-btn" id="modalMediaBtn">
+                            <i class="fas fa-image"></i> Image
+                        </button>
+                        <button class="modal-media-btn" id="modalVideoBtn">
+                            <i class="fas fa-video"></i> Vidéo
+                        </button>
+                        <button class="modal-media-btn" id="modalHashBtn">
+                            <i class="fas fa-hashtag"></i> Hashtag
+                        </button>
+                        <button class="modal-media-btn" id="modalLocationBtn">
+                            <i class="fas fa-map-marker-alt"></i> Lieu
+                        </button>
+                        <input type="file" id="modalFileInput" accept="image/*,video/*" multiple style="display: none;" />
+                    </div>
+                    <div class="modal-privacy">
+                        <span>Confidentialité :</span>
+                        <select id="modalPrivacy">
+                            <option value="public">Public</option>
+                            <option value="followers">Abonnés</option>
+                            <option value="private">Privé</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-gasless">
+                    <i class="fas fa-bolt"></i>
+                    <span>⚡ Transaction sans gaz (Relayer) - Frais: <span id="modalFee">0.005</span> $SPHERE</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelModal">Annuler</button>
+                <button class="btn-publish" id="publishPost">
+                    <i class="fas fa-paper-plane"></i> Publier
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/web3.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

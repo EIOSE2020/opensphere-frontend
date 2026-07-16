@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications - OpenSphere</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .notifications-page {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .notifications-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .notifications-header h1 i {
+            color: var(--purple-primary);
+            margin-right: 10px;
+        }
+        .notifications-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-mark-read {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .btn-mark-read:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .btn-clear-all {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--red-danger);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .btn-clear-all:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .notification-item {
+            display: flex;
+            align-items: start;
+            gap: 14px;
+            padding: 16px 18px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid transparent;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .notification-item:hover {
+            background: var(--bg-hover);
+        }
+        .notification-item.unread {
+            border-left-color: var(--purple-primary);
+            background: var(--bg-secondary);
+        }
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        .notification-icon.like { background: rgba(239, 68, 68, 0.15); color: var(--red-danger); }
+        .notification-icon.diamond { background: rgba(59, 130, 246, 0.15); color: var(--blue-info); }
+        .notification-icon.follow { background: rgba(16, 185, 129, 0.15); color: var(--green-success); }
+        .notification-icon.comment { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+        .notification-icon.join { background: rgba(124, 58, 237, 0.15); color: var(--purple-primary); }
+        .notification-icon.reward { background: rgba(236, 72, 153, 0.15); color: var(--pink-primary); }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-content .text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+        .notification-content .text strong {
+            color: var(--text-primary);
+        }
+        .notification-content .text .highlight {
+            color: var(--purple-light);
+            cursor: pointer;
+        }
+        .notification-content .text .highlight:hover {
+            text-decoration: underline;
+        }
+        .notification-content .time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .notification-avatar:hover {
+            opacity: 0.8;
+        }
+        .no-notifications {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .no-notifications i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+        .no-notifications h3 {
+            color: var(--text-secondary);
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .no-notifications p {
+            font-size: 14px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 16px;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-globe"></i>
+                    <span>OpenSphere</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher..." id="searchInput" />
+                </div>
+            </div>
+            <div class="nav-right">
+                <a href="index.html" class="nav-link" title="Accueil">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="explore.html" class="nav-link" title="Explorer">
+                    <i class="fas fa-compass"></i>
+                </a>
+                <a href="communities.html" class="nav-link" title="Communautés">
+                    <i class="fas fa-users"></i>
+                </a>
+                <a href="notifications.html" class="nav-link active" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notifBadge">3</span>
+                </a>
+                <a href="messages.html" class="nav-link" title="Messages">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <button class="btn-post" id="openPostModal">
+                    <i class="fas fa-plus"></i>
+                    <span>Poster</span>
+                </button>
+                <div class="profile-avatar" onclick="window.location.href='profile.html'">
+                    <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                </div>
+                <button class="btn-logout" id="logoutBtn" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="notifications-page">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Retour au feed
+                </a>
+
+                <div class="notifications-header">
+                    <h1><i class="fas fa-bell"></i> Notifications</h1>
+                    <div class="notifications-actions">
+                        <button class="btn-mark-read" id="markReadBtn"><i class="fas fa-check-double"></i> Tout marquer comme lu</button>
+                        <button class="btn-clear-all" id="clearAllBtn"><i class="fas fa-trash"></i> Effacer tout</button>
+                    </div>
+                </div>
+
+                <div class="notification-list" id="notificationList">
+                    <!-- Les notifications seront injectées par JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Notifications mockées
+            const users = [
+                { name: 'Sophie Dubois', avatar: 'https://i.pravatar.cc/40?img=1', username: 'sophie_dao' },
+                { name: 'Thomas Bernard', avatar: 'https://i.pravatar.cc/40?img=3', username: 'thomas_nft' },
+                { name: 'Emma Rousseau', avatar: 'https://i.pravatar.cc/40?img=5', username: 'emma_crypto' },
+                { name: 'Lucas Moreau', avatar: 'https://i.pravatar.cc/40?img=7', username: 'lucas_defi' },
+                { name: 'Julie Petit', avatar: 'https://i.pravatar.cc/40?img=9', username: 'julie_web3' }
+            ];
+
+            let notifications = [
+                {
+                    id: 'n1',
+                    type: 'like',
+                    userId: 'u2',
+                    text: 'a aimé votre post',
+                    time: Date.now() - 1000 * 60 * 15,
+                    read: false,
+                    postId: 'p1'
+                },
+                {
+                    id: 'n2',
+                    type: 'diamond',
+                    userId: 'u4',
+                    text: 'vous a envoyé un 💎',
+                    time: Date.now() - 1000 * 60 * 45,
+                    read: false,
+                    postId: 'p3'
+                },
+                {
+                    id: 'n3',
+                    type: 'follow',
+                    userId: 'u3',
+                    text: 'a commencé à vous suivre',
+                    time: Date.now() - 1000 * 60 * 120,
+                    read: false,
+                    postId: null
+                },
+                {
+                    id: 'n4',
+                    type: 'comment',
+                    userId: 'u5',
+                    text: 'a commenté votre post',
+                    time: Date.now() - 1000 * 60 * 180,
+                    read: true,
+                    postId: 'p2'
+                },
+                {
+                    id: 'n5',
+                    type: 'reward',
+                    userId: null,
+                    text: 'Vous avez reçu 2.5 $SPHERE pour votre activité !',
+                    time: Date.now() - 1000 * 60 * 300,
+                    read: true,
+                    postId: null
+                },
+                {
+                    id: 'n6',
+                    type: 'join',
+                    userId: null,
+                    text: 'Vous avez rejoint la communauté DevsDAO',
+                    time: Date.now() - 1000 * 60 * 400,
+                    read: true,
+                    postId: null
+                }
+            ];
+
+            // Sauvegarder les notifications dans localStorage
+            function saveNotifications() {
+                localStorage.setItem('opensphere_notifications', JSON.stringify(notifications));
+            }
+
+            // Charger les notifications depuis localStorage
+            function loadNotifications() {
+                const stored = localStorage.getItem('opensphere_notifications');
+                if (stored) {
+                    try {
+                        notifications = JSON.parse(stored);
+                        return;
+                    } catch(e) {}
+                }
+                saveNotifications();
+            }
+
+            // Compter les notifications non lues
+            function countUnread() {
+                return notifications.filter(function(n) { return !n.read; }).length;
+            }
+
+            // Mettre à jour le badge
+            function updateBadge() {
+                const badge = document.getElementById('notifBadge');
+                const count = countUnread();
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'flex' : 'none';
+                }
+            }
+
+            // Rendre les notifications
+            function renderNotifications() {
+                const container = document.getElementById('notificationList');
+                if (!container) return;
+
+                if (notifications.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-notifications">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>Aucune notification</h3>
+                            <p>Vous n'avez pas encore de notifications.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Trier par date (plus récentes en premier)
+                const sorted = notifications.slice().sort(function(a, b) {
+                    return b.time - a.time;
+                });
+
+                container.innerHTML = sorted.map(function(notif) {
+                    const user = notif.userId ? users.find(function(u) { return u.id === notif.userId; }) : null;
+                    const timeAgo = formatTimeAgo(new Date(notif.time));
+                    const isUnread = !notif.read ? 'unread' : '';
+
+                    let iconClass = '';
+                    let iconHtml = '';
+                    let avatarHtml = '';
+
+                    if (notif.type === 'like') {
+                        iconClass = 'like';
+                        iconHtml = '<i class="fas fa-heart"></i>';
+                    } else if (notif.type === 'diamond') {
+                        iconClass = 'diamond';
+                        iconHtml = '<i class="fas fa-gem"></i>';
+                    } else if (notif.type === 'follow') {
+                        iconClass = 'follow';
+                        iconHtml = '<i class="fas fa-user-plus"></i>';
+                    } else if (notif.type === 'comment') {
+                        iconClass = 'comment';
+                        iconHtml = '<i class="fas fa-comment"></i>';
+                    } else if (notif.type === 'join') {
+                        iconClass = 'join';
+                        iconHtml = '<i class="fas fa-users"></i>';
+                    } else if (notif.type === 'reward') {
+                        iconClass = 'reward';
+                        iconHtml = '<i class="fas fa-coins"></i>';
+                    }
+
+                    if (user) {
+                        avatarHtml = '<img src="' + user.avatar + '" alt="' + user.name + '" class="notification-avatar" onclick="window.location.href=\'profile.html\'" />';
+                    }
+
+                    return `
+                        <div class="notification-item ${isUnread}" data-notif-id="${notif.id}" onclick="markAsRead('${notif.id}')">
+                            ${avatarHtml || '<div class="notification-icon ' + iconClass + '">' + iconHtml + '</div>'}
+                            <div class="notification-content">
+                                <div class="text">
+                                    ${user ? '<strong>' + user.name + '</strong> ' : ''}
+                                    ${notif.text}
+                                </div>
+                                <span class="time"><i class="far fa-clock"></i> ${timeAgo}</span>
+                            </div>
+                            ${!notif.read ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--purple-primary); flex-shrink: 0; margin-top: 8px;"></span>' : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                updateBadge();
+            }
+
+            // Marquer comme lu
+            window.markAsRead = function(notifId) {
+                const notif = notifications.find(function(n) { return n.id === notifId; });
+                if (notif) {
+                    notif.read = true;
+                    saveNotifications();
+                    renderNotifications();
+                }
+            };
+
+            // Marquer tout comme lu
+            document.getElementById('markReadBtn').addEventListener('click', function() {
+                notifications.forEach(function(n) { n.read = true; });
+                saveNotifications();
+                renderNotifications();
+                showToast('Toutes les notifications ont été marquées comme lues', 'success');
+            });
+
+            // Effacer toutes les notifications
+            document.getElementById('clearAllBtn').addEventListener('click', function() {
+                if (!confirm('Voulez-vous vraiment supprimer toutes les notifications ?')) return;
+                notifications = [];
+                saveNotifications();
+                renderNotifications();
+                showToast('Notifications effacées', 'info');
+            });
+
+            // Charger les données
+            loadNotifications();
+            renderNotifications();
+
+            console.log('🔔 ' + notifications.length + ' notifications chargées (' + countUnread() + ' non lues)');
+        });
+    </script>
+</body>
+</html>

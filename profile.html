@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil - OpenSphere</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-globe"></i>
+                    <span>OpenSphere</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher..." id="searchInput" />
+                </div>
+            </div>
+            <div class="nav-right">
+                <a href="index.html" class="nav-link" title="Accueil">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="explore.html" class="nav-link" title="Explorer">
+                    <i class="fas fa-compass"></i>
+                </a>
+                <a href="communities.html" class="nav-link" title="Communautés">
+                    <i class="fas fa-users"></i>
+                </a>
+                <a href="notifications.html" class="nav-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <a href="messages.html" class="nav-link" title="Messages">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <button class="btn-post" id="openPostModal">
+                    <i class="fas fa-plus"></i>
+                    <span>Poster</span>
+                </button>
+                <div class="profile-avatar" onclick="window.location.href='profile.html'">
+                    <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                </div>
+                <button class="btn-logout" id="logoutBtn" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="profile-page">
+                <div class="profile-header">
+                    <div class="profile-cover-photo">
+                        <div class="profile-cover-overlay"></div>
+                    </div>
+                    <div class="profile-header-content">
+                        <div class="profile-avatar-section">
+                            <img id="profileAvatarLarge" src="https://i.pravatar.cc/150?img=11" alt="Avatar" class="profile-avatar-large-main" />
+                        </div>
+                        <div class="profile-info-section">
+                            <div class="profile-name-section">
+                                <h1 id="profileName">Alexandre Martin</h1>
+                                <span class="verified-badge-large" id="profileVerified">
+                                    <i class="fas fa-check-circle"></i> Vérifié
+                                </span>
+                            </div>
+                            <p class="profile-username" id="profileUsername">@alexandre_web3</p>
+                            <p class="profile-bio" id="profileBio">Passionné par le Web3, la DeFi et la décentralisation. 🚀</p>
+                            <div class="profile-meta">
+                                <span><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">Paris, France</span></span>
+                                <span><i class="fas fa-link"></i> <a href="#" id="profileWebsite">opensphere.io</a></span>
+                                <span><i class="fas fa-calendar-alt"></i> Rejoint en <span id="profileJoined">Janvier 2024</span></span>
+                            </div>
+                            <div class="profile-stats-large">
+                                <div class="stat-item">
+                                    <span class="stat-number-large" id="profileFollowers">1,234</span>
+                                    <span class="stat-label">Abonnés</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number-large" id="profileFollowing">567</span>
+                                    <span class="stat-label">Abonnements</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number-large" id="profilePosts">89</span>
+                                    <span class="stat-label">Posts</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number-large" id="profileDiamonds">247</span>
+                                    <span class="stat-label">Diamants</span>
+                                </div>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn-primary"><i class="fas fa-user-plus"></i> Suivre</button>
+                                <button class="btn-secondary"><i class="fas fa-envelope"></i> Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-tabs">
+                    <button class="profile-tab active" data-tab="posts">Posts</button>
+                    <button class="profile-tab" data-tab="nft">NFT</button>
+                    <button class="profile-tab" data-tab="replies">Réponses</button>
+                    <button class="profile-tab" data-tab="media">Médias</button>
+                    <button class="profile-tab" data-tab="likes">Likes</button>
+                </div>
+
+                <div class="profile-posts" id="profilePostsContainer"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/web3.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages - OpenSphere</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .messages-page {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .messages-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .messages-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .messages-header h1 i {
+            color: var(--purple-primary);
+            margin-right: 10px;
+        }
+        .btn-new-message {
+            padding: 10px 20px;
+            background: var(--purple-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-new-message:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+        .messages-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            min-height: 500px;
+        }
+        .conversations-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .conversations-list .search-conversations {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .conversations-list .search-conversations input {
+            width: 100%;
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+        .conversations-list .search-conversations input:focus {
+            border-color: var(--purple-primary);
+        }
+        .conversations-list .search-conversations input::placeholder {
+            color: var(--text-muted);
+        }
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .conversation-item:hover {
+            background: var(--bg-hover);
+        }
+        .conversation-item.active {
+            background: var(--bg-hover);
+            border-left: 3px solid var(--purple-primary);
+        }
+        .conversation-item .conv-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .conversation-item .conv-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .conversation-item .conv-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .conversation-item .conv-last-msg {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-item .conv-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .conversation-item .conv-unread {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--purple-primary);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .chat-area {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 500px;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .chat-header .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .chat-header .chat-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .chat-header .chat-status {
+            font-size: 12px;
+            color: var(--green-success);
+        }
+        .chat-header .chat-status .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-success);
+            margin-right: 4px;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 16px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            line-height: 1.5;
+            animation: fadeInUp 0.3s ease;
+        }
+        .message.sent {
+            align-self: flex-end;
+            background: var(--purple-gradient);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
+        }
+        .message .msg-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: block;
+        }
+        .message.sent .msg-time {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+        .chat-input-area input:focus {
+            border-color: var(--purple-primary);
+        }
+        .chat-input-area input::placeholder {
+            color: var(--text-muted);
+        }
+        .chat-input-area .btn-send {
+            padding: 10px 20px;
+            background: var(--purple-gradient);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-input-area .btn-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+        .chat-input-area .btn-attach {
+            padding: 10px 14px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+        .chat-input-area .btn-attach:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .no-conversation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+        .no-conversation i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+        .no-conversation h3 {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .no-conversation p {
+            font-size: 14px;
+        }
+        .no-conversations-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .no-conversations-msg i {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 16px;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+        @media (max-width: 768px) {
+            .messages-layout {
+                grid-template-columns: 1fr;
+            }
+            .conversations-list {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-globe"></i>
+                    <span>OpenSphere</span>
+                </a>
+            </div>
+            <div class="nav-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher..." id="searchInput" />
+                </div>
+            </div>
+            <div class="nav-right">
+                <a href="index.html" class="nav-link" title="Accueil">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="explore.html" class="nav-link" title="Explorer">
+                    <i class="fas fa-compass"></i>
+                </a>
+                <a href="communities.html" class="nav-link" title="Communautés">
+                    <i class="fas fa-users"></i>
+                </a>
+                <a href="notifications.html" class="nav-link" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </a>
+                <a href="messages.html" class="nav-link active" title="Messages">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <button class="btn-post" id="openPostModal">
+                    <i class="fas fa-plus"></i>
+                    <span>Poster</span>
+                </button>
+                <div class="profile-avatar" onclick="window.location.href='profile.html'">
+                    <img id="navAvatar" src="https://i.pravatar.cc/40?img=11" alt="Profile" />
+                </div>
+                <button class="btn-logout" id="logoutBtn" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="messages-page">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Retour au feed
+                </a>
+
+                <div class="messages-header">
+                    <h1><i class="fas fa-envelope"></i> Messages</h1>
+                    <button class="btn-new-message" id="newMessageBtn">
+                        <i class="fas fa-plus"></i> Nouveau message
+                    </button>
+                </div>
+
+                <div class="messages-layout">
+                    <!-- Conversations List -->
+                    <div class="conversations-list" id="conversationsList">
+                        <div class="search-conversations">
+                            <input type="text" placeholder="Rechercher une conversation..." id="convSearch" />
+                        </div>
+                        <div id="conversationsContainer">
+                            <!-- Les conversations seront injectées ici -->
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="chat-area" id="chatArea">
+                        <div class="no-conversation" id="noConversation">
+                            <i class="fas fa-comments"></i>
+                            <h3>Vos conversations</h3>
+                            <p>Sélectionnez une conversation pour commencer à discuter</p>
+                            <p style="font-size: 12px; margin-top: 8px;">⚡ Messages chiffrés de bout en bout</p>
+                        </div>
+                        <div id="chatContent" style="display: none; flex-direction: column; height: 100%;">
+                            <div class="chat-header" id="chatHeader">
+                                <img src="" alt="" class="chat-avatar" id="chatAvatar" />
+                                <div>
+                                    <div class="chat-name" id="chatName">Utilisateur</div>
+                                    <div class="chat-status"><span class="online-dot"></span> En ligne</div>
+                                </div>
+                            </div>
+                            <div class="chat-messages" id="chatMessages">
+                                <!-- Les messages seront injectés ici -->
+                            </div>
+                            <div class="chat-input-area">
+                                <button class="btn-attach" id="attachBtn"><i class="fas fa-paperclip"></i></button>
+                                <input type="text" placeholder="Écrire un message..." id="messageInput" />
+                                <button class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Données mockées
+            const contacts = [
+                { id: 'u2', name: 'Sophie Dubois', avatar: 'https://i.pravatar.cc/40?img=1', username: 'sophie_dao', online: true },
+                { id: 'u3', name: 'Thomas Bernard', avatar: 'https://i.pravatar.cc/40?img=3', username: 'thomas_nft', online: false },
+                { id: 'u4', name: 'Emma Rousseau', avatar: 'https://i.pravatar.cc/40?img=5', username: 'emma_crypto', online: true },
+                { id: 'u5', name: 'Lucas Moreau', avatar: 'https://i.pravatar.cc/40?img=7', username: 'lucas_defi', online: false },
+                { id: 'u6', name: 'Julie Petit', avatar: 'https://i.pravatar.cc/40?img=9', username: 'julie_web3', online: true }
+            ];
+
+            const messagesData = {
+                'u2': [
+                    { id: 'm1', from: 'u2', text: 'Salut ! Comment ça va sur OpenSphere ?', time: Date.now() - 1000 * 60 * 30, read: true },
+                    { id: 'm2', from: 'me', text: 'Super ! La plateforme est géniale !', time: Date.now() - 1000 * 60 * 25, read: true },
+                    { id: 'm3', from: 'u2', text: 'Tu as vu les nouveaux NFTs ?', time: Date.now() - 1000 * 60 * 10, read: false }
+                ],
+                'u4': [
+                    { id: 'm4', from: 'u4', text: 'Bonjour ! Prêt pour la prochaine DeFi ?', time: Date.now() - 1000 * 60 * 120, read: true },
+                    { id: 'm5', from: 'me', text: 'Oui, toujours prêt ! 🚀', time: Date.now() - 1000 * 60 * 115, read: true }
+                ],
+                'u6': [
+                    { id: 'm6', from: 'u6', text: 'Bienvenue sur OpenSphere !', time: Date.now() - 1000 * 60 * 60 * 24, read: true },
+                    { id: 'm7', from: 'me', text: 'Merci ! Contente de te voir ici !', time: Date.now() - 1000 * 60 * 60 * 23, read: true },
+                    { id: 'm8', from: 'u6', text: 'Tu devrais rejoindre ma communauté !', time: Date.now() - 1000 * 60 * 60 * 22, read: true }
+                ]
+            };
+
+            let currentConversation = null;
+            let messages = JSON.parse(JSON.stringify(messagesData));
+
+            // Sauvegarder les messages
+            function saveMessages() {
+                localStorage.setItem('opensphere_messages', JSON.stringify(messages));
+            }
+
+            // Charger les messages
+            function loadMessages() {
+                const stored = localStorage.getItem('opensphere_messages');
+                if (stored) {
+                    try {
+                        messages = JSON.parse(stored);
+                        return;
+                    } catch(e) {}
+                }
+                saveMessages();
+            }
+
+            // Compter les messages non lus par conversation
+            function getUnreadCount(contactId) {
+                const msgs = messages[contactId] || [];
+                return msgs.filter(function(m) { return m.from !== 'me' && !m.read; }).length;
+            }
+
+            // Rendre les conversations
+            function renderConversations() {
+                const container = document.getElementById('conversationsContainer');
+                if (!container) return;
+
+                const convKeys = Object.keys(messages);
+                if (convKeys.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-conversations-msg">
+                            <i class="fas fa-inbox"></i>
+                            <p>Aucune conversation</p>
+                            <p style="font-size: 13px;">Envoyez un message à quelqu'un pour commencer</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = convKeys.map(function(contactId) {
+                    const contact = contacts.find(function(c) { return c.id === contactId; });
+                    if (!contact) return '';
+                    const msgs = messages[contactId] || [];
+                    const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+                    const unread = getUnreadCount(contactId);
+                    const timeAgo = lastMsg ? formatTimeAgo(new Date(lastMsg.time)) : '';
+
+                    return `
+                        <div class="conversation-item ${currentConversation === contactId ? 'active' : ''}" onclick="selectConversation('${contactId}')">
+                            <img src="${contact.avatar}" alt="${contact.name}" class="conv-avatar" />
+                            <div class="conv-info">
+                                <div class="conv-name">${contact.name}</div>
+                                <div class="conv-last-msg">${lastMsg ? lastMsg.text : 'Aucun message'}</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                <span class="conv-time">${timeAgo}</span>
+                                ${unread > 0 ? '<span class="conv-unread">' + unread + '</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Sélectionner une conversation
+            window.selectConversation = function(contactId) {
+                currentConversation = contactId;
+                const contact = contacts.find(function(c) { return c.id === contactId; });
+                if (!contact) return;
+
+                // Marquer les messages comme lus
+                const msgs = messages[contactId] || [];
+                msgs.forEach(function(m) {
+                    if (m.from !== 'me') { m.read = true; }
+                });
+                saveMessages();
+
+                // Afficher le chat
+                document.getElementById('noConversation').style.display = 'none';
+                document.getElementById('chatContent').style.display = 'flex';
+
+                // Mettre à jour l'en-tête
+                document.getElementById('chatAvatar').src = contact.avatar;
+                document.getElementById('chatName').textContent = contact.name;
+                document.getElementById('chatHeader').querySelector('.chat-status').innerHTML = 
+                    (contact.online ? '<span class="online-dot"></span> En ligne' : 'Hors ligne');
+
+                // Rendre les messages
+                renderMessages(contactId);
+                renderConversations();
+
+                // Focus sur l'input
+                document.getElementById('messageInput').focus();
+            };
+
+            // Rendre les messages d'une conversation
+            function renderMessages(contactId) {
+                const container = document.getElementById('chatMessages');
+                const msgs = messages[contactId] || [];
+
+                if (msgs.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-comment" style="font-size: 32px; display: block; margin-bottom: 12px;"></i>
+                            <p>Aucun message</p>
+                            <p style="font-size: 13px;">Envoyez un message pour commencer la conversation</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = msgs.map(function(msg) {
+                    const isSent = msg.from === 'me';
+                    const timeAgo = formatTimeAgo(new Date(msg.time));
+                    return `
+                        <div class="message ${isSent ? 'sent' : 'received'}">
+                            ${msg.text}
+                            <span class="msg-time">${timeAgo}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Scroll en bas
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Envoyer un message
+            function sendMessage() {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text || !currentConversation) return;
+
+                if (!messages[currentConversation]) {
+                    messages[currentConversation] = [];
+                }
+
+                messages[currentConversation].push({
+                    id: 'm' + Date.now(),
+                    from: 'me',
+                    text: text,
+                    time: Date.now(),
+                    read: true
+                });
+
+                saveMessages();
+                renderMessages(currentConversation);
+                renderConversations();
+                input.value = '';
+
+                // Simuler une réponse automatique
+                setTimeout(function() {
+                    const contact = contacts.find(function(c) { return c.id === currentConversation; });
+                    if (!contact) return;
+                    
+                    const responses = [
+                        'Super ! 😃',
+                        'Intéressant, dis-moi en plus !',
+                        'Je suis d\'accord avec toi',
+                        'Haha, c\'est trop drôle !',
+                        'Ah oui, je comprends',
+                        'Exactement ! 🎯',
+                        'Je vais y réfléchir',
+                        'Merci pour l\'info !',
+                        'Trop cool ! 🔥',
+                        'On devrait en discuter plus tard'
+                    ];
+
+                    const reply = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    messages[currentConversation].push({
+                        id: 'm' + Date.now(),
+                        from: contact.id,
+                        text: reply,
+                        time: Date.now(),
+                        read: false
+                    });
+
+                    saveMessages();
+                    renderMessages(currentConversation);
+                    renderConversations();
+                }, 2000 + Math.random() * 2000);
+            }
+
+            // Recherche de conversations
+            document.getElementById('convSearch').addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.conversation-item');
+                items.forEach(function(item) {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(query) ? '' : 'none';
+                });
+            });
+
+            // Envoyer avec Enter
+            document.getElementById('messageInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Bouton envoyer
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+            // Nouveau message
+            document.getElementById('newMessageBtn').addEventListener('click', function() {
+                const contactNames = contacts.map(function(c) {
+                    return c.name + ' (@' + c.username + ')';
+                }).join('\n');
+                const choice = prompt('Choisissez un contact :\n\n' + contactNames + '\n\nEntrez le nom exact du contact :');
+                if (choice) {
+                    const contact = contacts.find(function(c) {
+                        return c.name.toLowerCase() === choice.toLowerCase() || 
+                               c.username.toLowerCase() === choice.toLowerCase();
+                    });
+                    if (contact) {
+                        if (!messages[contact.id]) {
+                            messages[contact.id] = [];
+                            saveMessages();
+                        }
+                        selectConversation(contact.id);
+                    } else {
+                        showToast('Contact non trouvé', 'error');
+                    }
+                }
+            });
+
+            // Joindre un fichier
+            document.getElementById('attachBtn').addEventListener('click', function() {
+                showToast('📎 Fonctionnalité de pièce jointe disponible bientôt', 'info');
+            });
+
+            // Charger les données
+            loadMessages();
+            renderConversations();
+
+            // Sélectionner la première conversation par défaut
+            const convKeys = Object.keys(messages);
+            if (convKeys.length > 0) {
+                selectConversation(convKeys[0]);
+            }
+
+            console.log('💬 ' + Object.keys(messages).length + ' conversations chargées');
+        });
+    </script>
+</body>
+</html>
