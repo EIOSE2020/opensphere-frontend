@@ -30,6 +30,15 @@
             width: 100%;
             text-align: center;
             box-shadow: var(--shadow-glow);
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .login-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .login-container::-webkit-scrollbar-thumb {
+            background: var(--purple-primary);
+            border-radius: 10px;
         }
         .login-logo {
             font-size: 36px;
@@ -80,6 +89,11 @@
         .login-btn.primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+        }
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
         }
         .login-btn i {
             font-size: 18px;
@@ -136,7 +150,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 16px;
         }
         .login-feature {
             padding: 12px;
@@ -169,7 +183,7 @@
             margin-top: 12px;
         }
         .login-footer {
-            margin-top: 20px;
+            margin-top: 16px;
             color: var(--text-muted);
             font-size: 12px;
         }
@@ -186,7 +200,7 @@
             justify-content: center;
             gap: 12px;
             padding: 12px;
-            margin-top: 16px;
+            margin-top: 12px;
             background: var(--bg-secondary);
             border-radius: var(--radius-sm);
             border: 1px solid var(--purple-primary);
@@ -250,6 +264,49 @@
         .register-link a:hover {
             text-decoration: underline;
         }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .btn-group .login-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 13px;
+            margin: 0;
+        }
+        .btn-group .login-btn.active-tab {
+            background: var(--purple-gradient);
+            color: white;
+            border-color: transparent;
+        }
+        .qr-container {
+            display: none;
+            margin: 16px 0;
+            padding: 16px;
+            background: white;
+            border-radius: var(--radius-sm);
+        }
+        .qr-container.active {
+            display: block;
+        }
+        .qr-container img {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            display: block;
+        }
+        .qr-container p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 24px 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -260,7 +317,7 @@
             </div>
             <p class="login-subtitle">Le réseau social souverain et décentralisé</p>
 
-            <!-- ===== BOUTON WALLET ===== -->
+            <!-- ===== 1. WALLET (MetaMask) ===== -->
             <button class="login-btn primary" id="connectWalletBtn">
                 <i class="fas fa-wallet"></i> Connecter avec Wallet
             </button>
@@ -270,23 +327,23 @@
                 <span>Connexion en cours...</span>
             </div>
 
-            <!-- ===== BOUTON GOOGLE ===== -->
+            <!-- ===== 2. GOOGLE (OAuth) ===== -->
             <button class="login-btn" id="googleBtn">
                 <i class="fab fa-google"></i> Continuer avec Google
             </button>
 
             <div class="login-divider">ou</div>
 
-            <!-- ===== BOUTON EMAIL ===== -->
+            <!-- ===== 3. EMAIL ===== -->
             <button class="login-btn" id="emailToggleBtn">
                 <i class="fas fa-envelope"></i> Continuer avec Email
             </button>
 
             <!-- ===== FORMULAIRE EMAIL ===== -->
             <div class="login-form hidden" id="emailForm">
-                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
-                    <button class="login-btn" id="loginTab" style="flex:1; padding: 8px; font-size: 13px; margin: 0;">Connexion</button>
-                    <button class="login-btn" id="registerTab" style="flex:1; padding: 8px; font-size: 13px; margin: 0;">Inscription</button>
+                <div class="btn-group">
+                    <button class="login-btn active-tab" id="loginTab">Connexion</button>
+                    <button class="login-btn" id="registerTab">Inscription</button>
                 </div>
 
                 <!-- Formulaire de connexion -->
@@ -320,10 +377,15 @@
                 </div>
             </div>
 
-            <!-- ===== QR CODE ===== -->
+            <!-- ===== 4. QR CODE ===== -->
             <button class="login-btn" id="qrBtn">
                 <i class="fas fa-qrcode"></i> Scanner un QR Code
             </button>
+
+            <div class="qr-container" id="qrContainer">
+                <img id="qrImage" src="" alt="QR Code" />
+                <p>Scannez ce QR Code avec votre application wallet mobile</p>
+            </div>
 
             <div class="gasless-badge">
                 <i class="fas fa-bolt"></i> Transactions sans gaz incluses
@@ -360,6 +422,8 @@
             const walletAnimation = document.getElementById('walletAnimation');
             const googleBtn = document.getElementById('googleBtn');
             const qrBtn = document.getElementById('qrBtn');
+            const qrContainer = document.getElementById('qrContainer');
+            const qrImage = document.getElementById('qrImage');
             const emailToggleBtn = document.getElementById('emailToggleBtn');
             const emailForm = document.getElementById('emailForm');
             const loginTab = document.getElementById('loginTab');
@@ -379,26 +443,93 @@
             const registerError = document.getElementById('registerError');
             const registerSuccess = document.getElementById('registerSuccess');
 
-            // ===== BASCLER LE FORMULAIRE EMAIL =====
+            // ============================================================
+            // 1. WALLET (MetaMask)
+            // ============================================================
+            connectWalletBtn.addEventListener('click', async function() {
+                // Vérifier si MetaMask est installé
+                if (typeof window.ethereum === 'undefined') {
+                    showToast('❌ MetaMask non installé. Téléchargez-le sur metamask.io', 'error');
+                    return;
+                }
+
+                walletAnimation.classList.add('active');
+                connectWalletBtn.disabled = true;
+                connectWalletBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+
+                try {
+                    // Demander la connexion à MetaMask
+                    const accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts'
+                    });
+                    const walletAddress = accounts[0];
+
+                    // Appeler le backend
+                    const response = await fetch(`${API_URL}/auth/wallet`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ walletAddress })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        showToast('✅ Wallet connecté avec succès !', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 500);
+                    } else {
+                        showToast('❌ ' + data.error, 'error');
+                        walletAnimation.classList.remove('active');
+                        connectWalletBtn.disabled = false;
+                        connectWalletBtn.innerHTML = '<i class="fas fa-wallet"></i> Connecter avec Wallet';
+                    }
+                } catch (error) {
+                    if (error.code === 4001) {
+                        showToast('❌ Connexion annulée par l\'utilisateur', 'error');
+                    } else {
+                        showToast('❌ Erreur wallet: ' + error.message, 'error');
+                    }
+                    walletAnimation.classList.remove('active');
+                    connectWalletBtn.disabled = false;
+                    connectWalletBtn.innerHTML = '<i class="fas fa-wallet"></i> Connecter avec Wallet';
+                }
+            });
+
+            // Écouter les changements de compte MetaMask
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    console.log('🔑 Compte MetaMask changé:', accounts);
+                });
+            }
+
+            // ============================================================
+            // 2. GOOGLE (OAuth)
+            // ============================================================
+            googleBtn.addEventListener('click', function() {
+                // Rediriger vers le backend pour OAuth Google
+                window.location.href = `${API_URL}/auth/google`;
+            });
+
+            // ============================================================
+            // 3. EMAIL (Connexion/Inscription)
+            // ============================================================
             let emailFormVisible = false;
             emailToggleBtn.addEventListener('click', function() {
                 emailFormVisible = !emailFormVisible;
                 emailForm.classList.toggle('hidden', !emailFormVisible);
-                if (emailFormVisible) {
-                    emailToggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Masquer le formulaire';
-                } else {
-                    emailToggleBtn.innerHTML = '<i class="fas fa-envelope"></i> Continuer avec Email';
-                }
+                emailToggleBtn.innerHTML = emailFormVisible ?
+                    '<i class="fas fa-chevron-up"></i> Masquer le formulaire' :
+                    '<i class="fas fa-envelope"></i> Continuer avec Email';
             });
 
-            // ===== BASCLER CONNEXION / INSCRIPTION =====
+            // Basculer entre Connexion et Inscription
             loginTab.addEventListener('click', function() {
                 loginFormContent.style.display = 'block';
                 registerFormContent.style.display = 'none';
-                loginTab.style.background = 'var(--purple-gradient)';
-                loginTab.style.color = 'white';
-                registerTab.style.background = 'var(--bg-secondary)';
-                registerTab.style.color = 'var(--text-secondary)';
+                loginTab.classList.add('active-tab');
+                registerTab.classList.remove('active-tab');
                 loginError.classList.remove('show');
                 loginSuccess.classList.remove('show');
             });
@@ -406,15 +537,13 @@
             registerTab.addEventListener('click', function() {
                 loginFormContent.style.display = 'none';
                 registerFormContent.style.display = 'block';
-                registerTab.style.background = 'var(--purple-gradient)';
-                registerTab.style.color = 'white';
-                loginTab.style.background = 'var(--bg-secondary)';
-                loginTab.style.color = 'var(--text-secondary)';
+                registerTab.classList.add('active-tab');
+                loginTab.classList.remove('active-tab');
                 registerError.classList.remove('show');
                 registerSuccess.classList.remove('show');
             });
 
-            // ===== CONNEXION =====
+            // Connexion Email
             loginSubmitBtn.addEventListener('click', async function() {
                 const email = loginEmail.value.trim();
                 const password = loginPassword.value.trim();
@@ -460,7 +589,7 @@
                 }
             });
 
-            // ===== INSCRIPTION =====
+            // Inscription
             registerSubmitBtn.addEventListener('click', async function() {
                 const username = registerUsername.value.trim();
                 const email = registerEmail.value.trim();
@@ -514,45 +643,7 @@
                 }
             });
 
-            // ===== WALLET =====
-            connectWalletBtn.addEventListener('click', function() {
-                walletAnimation.classList.add('active');
-                connectWalletBtn.disabled = true;
-
-                setTimeout(() => {
-                    const user = {
-                        id: 'user_' + Date.now(),
-                        name: 'Utilisateur Web3',
-                        username: 'user_' + Math.random().toString(36).slice(2, 8),
-                        wallet: '0x' + Array.from({ length: 40 }, () =>
-                            Math.floor(Math.random() * 16).toString(16)
-                        ).join(''),
-                        avatar: 'https://i.pravatar.cc/80?img=' + Math.floor(Math.random() * 70),
-                        verified: Math.random() > 0.7,
-                        sphereBalance: (Math.random() * 10).toFixed(2),
-                    };
-
-                    localStorage.setItem('user', JSON.stringify(user));
-                    localStorage.setItem('authToken', 'simulated_token_' + Date.now());
-
-                    showToast(`✅ Connecté avec succès ! Bienvenue ${user.name}`, 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 500);
-                }, 1500);
-            });
-
-            // ===== GOOGLE =====
-            googleBtn.addEventListener('click', function() {
-                showToast('🔐 Connexion Google bientôt disponible', 'info');
-            });
-
-            // ===== QR CODE =====
-            qrBtn.addEventListener('click', function() {
-                showToast('📱 QR Code bientôt disponible', 'info');
-            });
-
-            // ===== ENTER POUR SOUMETTRE =====
+            // Enter pour soumettre
             loginPassword.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') loginSubmitBtn.click();
             });
@@ -560,7 +651,38 @@
                 if (e.key === 'Enter') registerSubmitBtn.click();
             });
 
-            // ===== VÉRIFIER SI DÉJÀ CONNECTÉ =====
+            // ============================================================
+            // 4. QR CODE
+            // ============================================================
+            let qrVisible = false;
+            qrBtn.addEventListener('click', function() {
+                qrVisible = !qrVisible;
+                qrContainer.classList.toggle('active', qrVisible);
+
+                if (qrVisible) {
+                    // Générer un QR Code (simulé - à remplacer par une vraie librairie)
+                    // Dans la vraie vie, on utiliserait une librairie comme qrcode.js
+                    const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                    const qrData = {
+                        type: 'wallet_connect',
+                        sessionId: sessionId,
+                        callback: `${API_URL}/auth/wallet/connect`,
+                        app: 'OpenSphere'
+                    };
+                    
+                    // Simuler un QR Code (pour l'instant, afficher un message)
+                    qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + 
+                        encodeURIComponent(JSON.stringify(qrData));
+                    qrContainer.querySelector('p').textContent = 
+                        '📱 Scannez ce QR Code avec votre wallet mobile pour vous connecter';
+                    
+                    showToast('📱 QR Code généré ! Scannez-le avec votre wallet', 'info');
+                }
+            });
+
+            // ============================================================
+            // VÉRIFIER SI DÉJÀ CONNECTÉ
+            // ============================================================
             const user = localStorage.getItem('user');
             if (user) {
                 try {
@@ -570,6 +692,13 @@
                     }
                 } catch (e) {}
             }
+
+            // ============================================================
+            // MESSAGE DE BIENVENUE
+            // ============================================================
+            setTimeout(function() {
+                showToast('🔐 Bienvenue sur OpenSphere ! Connectez-vous pour commencer', 'info');
+            }, 300);
         });
     </script>
 </body>
