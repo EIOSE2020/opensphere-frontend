@@ -25,20 +25,20 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            padding: 48px 40px;
+            padding: 40px 32px;
             max-width: 440px;
             width: 100%;
             text-align: center;
             box-shadow: var(--shadow-glow);
         }
         .login-logo {
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 900;
             background: var(--purple-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .login-logo i {
             -webkit-text-fill-color: initial;
@@ -47,25 +47,25 @@
         .login-subtitle {
             color: var(--text-muted);
             font-size: 14px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
         .login-btn {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             background: var(--bg-secondary);
             color: var(--text-primary);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             font-family: inherit;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .login-btn:hover {
             background: var(--bg-hover);
@@ -82,13 +82,46 @@
             box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
         }
         .login-btn i {
-            font-size: 20px;
+            font-size: 18px;
+        }
+        .login-form {
+            text-align: left;
+            margin: 16px 0;
+        }
+        .login-form.hidden {
+            display: none;
+        }
+        .login-form label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--purple-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+        .login-form input::placeholder {
+            color: var(--text-muted);
         }
         .login-divider {
             display: flex;
             align-items: center;
             gap: 16px;
-            margin: 20px 0;
+            margin: 16px 0;
             color: var(--text-muted);
             font-size: 13px;
         }
@@ -103,7 +136,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 12px;
-            margin-top: 24px;
+            margin-top: 20px;
         }
         .login-feature {
             padding: 12px;
@@ -119,7 +152,7 @@
         }
         .login-feature i {
             display: block;
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 4px;
             color: var(--purple-primary);
         }
@@ -133,10 +166,10 @@
             border-radius: 50px;
             font-size: 12px;
             font-weight: 500;
-            margin-top: 16px;
+            margin-top: 12px;
         }
         .login-footer {
-            margin-top: 24px;
+            margin-top: 20px;
             color: var(--text-muted);
             font-size: 12px;
         }
@@ -172,6 +205,51 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .toggle-form-btn {
+            background: none;
+            border: none;
+            color: var(--purple-light);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .toggle-form-btn:hover {
+            background: rgba(124, 58, 237, 0.1);
+            text-decoration: underline;
+        }
+        .form-error {
+            color: var(--red-danger);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+        .form-error.show {
+            display: block;
+        }
+        .form-success {
+            color: var(--green-success);
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+        .form-success.show {
+            display: block;
+        }
+        .register-link {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .register-link a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -181,34 +259,76 @@
                 <i class="fas fa-globe"></i> OpenSphere
             </div>
             <p class="login-subtitle">Le réseau social souverain et décentralisé</p>
-            
+
+            <!-- ===== BOUTON WALLET ===== -->
             <button class="login-btn primary" id="connectWalletBtn">
                 <i class="fas fa-wallet"></i> Connecter avec Wallet
             </button>
-            
-            <button class="login-btn" id="googleBtn">
-                <i class="fab fa-google"></i> Continuer avec Google
-            </button>
-            
-            <button class="login-btn" id="emailBtn">
-                <i class="fas fa-envelope"></i> Continuer avec Email
-            </button>
-            
+
             <div class="wallet-connect-animation" id="walletAnimation">
                 <div class="spinner"></div>
                 <span>Connexion en cours...</span>
             </div>
-            
+
+            <!-- ===== BOUTON GOOGLE ===== -->
+            <button class="login-btn" id="googleBtn">
+                <i class="fab fa-google"></i> Continuer avec Google
+            </button>
+
             <div class="login-divider">ou</div>
-            
+
+            <!-- ===== BOUTON EMAIL ===== -->
+            <button class="login-btn" id="emailToggleBtn">
+                <i class="fas fa-envelope"></i> Continuer avec Email
+            </button>
+
+            <!-- ===== FORMULAIRE EMAIL ===== -->
+            <div class="login-form hidden" id="emailForm">
+                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                    <button class="login-btn" id="loginTab" style="flex:1; padding: 8px; font-size: 13px; margin: 0;">Connexion</button>
+                    <button class="login-btn" id="registerTab" style="flex:1; padding: 8px; font-size: 13px; margin: 0;">Inscription</button>
+                </div>
+
+                <!-- Formulaire de connexion -->
+                <div id="loginFormContent">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" value="test@test.com" />
+                    <label>Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="Votre mot de passe" value="Password123" />
+                    <div class="form-error" id="loginError"></div>
+                    <div class="form-success" id="loginSuccess"></div>
+                    <button class="login-btn primary" id="loginSubmitBtn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </div>
+
+                <!-- Formulaire d'inscription -->
+                <div id="registerFormContent" style="display: none;">
+                    <label>Nom d'utilisateur</label>
+                    <input type="text" id="registerUsername" placeholder="monpseudo" value="testuser" />
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="votre@email.com" value="test@test.com" />
+                    <label>Mot de passe</label>
+                    <input type="password" id="registerPassword" placeholder="Mot de passe (min 6 caractères)" value="Password123" />
+                    <label>Nom d'affichage</label>
+                    <input type="text" id="registerDisplayName" placeholder="Votre nom" value="Test User" />
+                    <div class="form-error" id="registerError"></div>
+                    <div class="form-success" id="registerSuccess"></div>
+                    <button class="login-btn primary" id="registerSubmitBtn">
+                        <i class="fas fa-user-plus"></i> S'inscrire
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== QR CODE ===== -->
             <button class="login-btn" id="qrBtn">
                 <i class="fas fa-qrcode"></i> Scanner un QR Code
             </button>
-            
+
             <div class="gasless-badge">
                 <i class="fas fa-bolt"></i> Transactions sans gaz incluses
             </div>
-            
+
             <div class="login-features">
                 <div class="login-feature">
                     <i class="fas fa-shield-alt"></i>
@@ -223,73 +343,233 @@
                     Interopérable
                 </div>
             </div>
-            
+
             <div class="login-footer">
                 En continuant, vous acceptez les <a href="#">Conditions d'utilisation</a> et la <a href="#">Politique de confidentialité</a>.
             </div>
         </div>
     </div>
+
     <script src="js/utils.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // ===== REDIRECTION AUTOMATIQUE SUPPRIMÉE =====
-            // La page de connexion reste affichée même si un utilisateur est dans localStorage
-            // L'utilisateur doit cliquer sur un bouton pour se connecter
-            
-            // const user = localStorage.getItem('user');
-            // if (user) {
-            //     window.location.href = 'index.html';
-            //     return;
-            // }
+        document.addEventListener('DOMContentLoaded', function() {
+            const API_URL = 'https://opensphere-backend-0f92255e67dd.herokuapp.com/api';
 
-            const connectBtn = document.getElementById('connectWalletBtn');
+            // ===== ÉLÉMENTS =====
+            const connectWalletBtn = document.getElementById('connectWalletBtn');
             const walletAnimation = document.getElementById('walletAnimation');
-            
-            function handleLogin(method) {
+            const googleBtn = document.getElementById('googleBtn');
+            const qrBtn = document.getElementById('qrBtn');
+            const emailToggleBtn = document.getElementById('emailToggleBtn');
+            const emailForm = document.getElementById('emailForm');
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginFormContent = document.getElementById('loginFormContent');
+            const registerFormContent = document.getElementById('registerFormContent');
+            const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+            const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+            const loginEmail = document.getElementById('loginEmail');
+            const loginPassword = document.getElementById('loginPassword');
+            const registerUsername = document.getElementById('registerUsername');
+            const registerEmail = document.getElementById('registerEmail');
+            const registerPassword = document.getElementById('registerPassword');
+            const registerDisplayName = document.getElementById('registerDisplayName');
+            const loginError = document.getElementById('loginError');
+            const loginSuccess = document.getElementById('loginSuccess');
+            const registerError = document.getElementById('registerError');
+            const registerSuccess = document.getElementById('registerSuccess');
+
+            // ===== BASCLER LE FORMULAIRE EMAIL =====
+            let emailFormVisible = false;
+            emailToggleBtn.addEventListener('click', function() {
+                emailFormVisible = !emailFormVisible;
+                emailForm.classList.toggle('hidden', !emailFormVisible);
+                if (emailFormVisible) {
+                    emailToggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Masquer le formulaire';
+                } else {
+                    emailToggleBtn.innerHTML = '<i class="fas fa-envelope"></i> Continuer avec Email';
+                }
+            });
+
+            // ===== BASCLER CONNEXION / INSCRIPTION =====
+            loginTab.addEventListener('click', function() {
+                loginFormContent.style.display = 'block';
+                registerFormContent.style.display = 'none';
+                loginTab.style.background = 'var(--purple-gradient)';
+                loginTab.style.color = 'white';
+                registerTab.style.background = 'var(--bg-secondary)';
+                registerTab.style.color = 'var(--text-secondary)';
+                loginError.classList.remove('show');
+                loginSuccess.classList.remove('show');
+            });
+
+            registerTab.addEventListener('click', function() {
+                loginFormContent.style.display = 'none';
+                registerFormContent.style.display = 'block';
+                registerTab.style.background = 'var(--purple-gradient)';
+                registerTab.style.color = 'white';
+                loginTab.style.background = 'var(--bg-secondary)';
+                loginTab.style.color = 'var(--text-secondary)';
+                registerError.classList.remove('show');
+                registerSuccess.classList.remove('show');
+            });
+
+            // ===== CONNEXION =====
+            loginSubmitBtn.addEventListener('click', async function() {
+                const email = loginEmail.value.trim();
+                const password = loginPassword.value.trim();
+
+                if (!email || !password) {
+                    loginError.textContent = 'Veuillez remplir tous les champs';
+                    loginError.classList.add('show');
+                    return;
+                }
+
+                loginError.classList.remove('show');
+                loginSuccess.classList.remove('show');
+                loginSubmitBtn.disabled = true;
+                loginSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        loginSuccess.textContent = '✅ Connecté avec succès ! Redirection...';
+                        loginSuccess.classList.add('show');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 500);
+                    } else {
+                        loginError.textContent = '❌ ' + data.error;
+                        loginError.classList.add('show');
+                        loginSubmitBtn.disabled = false;
+                        loginSubmitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+                    }
+                } catch (error) {
+                    loginError.textContent = '❌ Erreur de connexion au serveur';
+                    loginError.classList.add('show');
+                    loginSubmitBtn.disabled = false;
+                    loginSubmitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+                }
+            });
+
+            // ===== INSCRIPTION =====
+            registerSubmitBtn.addEventListener('click', async function() {
+                const username = registerUsername.value.trim();
+                const email = registerEmail.value.trim();
+                const password = registerPassword.value.trim();
+                const displayName = registerDisplayName.value.trim() || username;
+
+                if (!username || !email || !password) {
+                    registerError.textContent = 'Veuillez remplir tous les champs';
+                    registerError.classList.add('show');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    registerError.textContent = 'Le mot de passe doit contenir au moins 6 caractères';
+                    registerError.classList.add('show');
+                    return;
+                }
+
+                registerError.classList.remove('show');
+                registerSuccess.classList.remove('show');
+                registerSubmitBtn.disabled = true;
+                registerSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inscription...';
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, username, password, displayName })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        registerSuccess.textContent = '✅ Inscription réussie ! Redirection...';
+                        registerSuccess.classList.add('show');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 500);
+                    } else {
+                        registerError.textContent = '❌ ' + data.error;
+                        registerError.classList.add('show');
+                        registerSubmitBtn.disabled = false;
+                        registerSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> S\'inscrire';
+                    }
+                } catch (error) {
+                    registerError.textContent = '❌ Erreur de connexion au serveur';
+                    registerError.classList.add('show');
+                    registerSubmitBtn.disabled = false;
+                    registerSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> S\'inscrire';
+                }
+            });
+
+            // ===== WALLET =====
+            connectWalletBtn.addEventListener('click', function() {
                 walletAnimation.classList.add('active');
-                connectBtn.disabled = true;
-                
+                connectWalletBtn.disabled = true;
+
                 setTimeout(() => {
                     const user = {
                         id: 'user_' + Date.now(),
                         name: 'Utilisateur Web3',
                         username: 'user_' + Math.random().toString(36).slice(2, 8),
-                        wallet: '0x' + Array.from({length: 40}, () => 
+                        wallet: '0x' + Array.from({ length: 40 }, () =>
                             Math.floor(Math.random() * 16).toString(16)
                         ).join(''),
                         avatar: 'https://i.pravatar.cc/80?img=' + Math.floor(Math.random() * 70),
                         verified: Math.random() > 0.7,
-                        followers: Math.floor(Math.random() * 1000),
-                        following: Math.floor(Math.random() * 500),
-                        posts: 0,
                         sphereBalance: (Math.random() * 10).toFixed(2),
-                        diamondsReceived: Math.floor(Math.random() * 500),
-                        reputation: Math.floor(Math.random() * 3000),
-                        rank: '#' + Math.floor(Math.random() * 1000),
-                        joined: new Date().toLocaleDateString('fr-FR'),
-                        location: 'Paris, France',
-                        bio: 'Passionné par le Web3 🚀'
                     };
-                    
+
                     localStorage.setItem('user', JSON.stringify(user));
                     localStorage.setItem('authToken', 'simulated_token_' + Date.now());
-                    
-                    showToast(`Connecté avec succès ! Bienvenue ${user.name} 🎉`, 'success');
-                    
+
+                    showToast(`✅ Connecté avec succès ! Bienvenue ${user.name}`, 'success');
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 500);
                 }, 1500);
-            }
-
-            connectBtn.addEventListener('click', () => handleLogin('wallet'));
-            document.getElementById('googleBtn').addEventListener('click', () => handleLogin('google'));
-            document.getElementById('emailBtn').addEventListener('click', () => handleLogin('email'));
-            document.getElementById('qrBtn').addEventListener('click', () => {
-                showToast('🔍 Fonctionnalité QR Code disponible bientôt', 'info');
             });
-            
-            showToast('Bienvenue sur OpenSphere ! Connectez-vous pour commencer', 'info');
+
+            // ===== GOOGLE =====
+            googleBtn.addEventListener('click', function() {
+                showToast('🔐 Connexion Google bientôt disponible', 'info');
+            });
+
+            // ===== QR CODE =====
+            qrBtn.addEventListener('click', function() {
+                showToast('📱 QR Code bientôt disponible', 'info');
+            });
+
+            // ===== ENTER POUR SOUMETTRE =====
+            loginPassword.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') loginSubmitBtn.click();
+            });
+            registerPassword.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') registerSubmitBtn.click();
+            });
+
+            // ===== VÉRIFIER SI DÉJÀ CONNECTÉ =====
+            const user = localStorage.getItem('user');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    if (userData.id) {
+                        window.location.href = 'index.html';
+                    }
+                } catch (e) {}
+            }
         });
     </script>
 </body>
