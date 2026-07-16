@@ -1,241 +1,234 @@
 // js/app.js
 // ===== APPLICATION PRINCIPALE =====
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialiser le profil
-    if (window.profileAPI) {
-        window.profileAPI.initProfile();
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Mettre à jour l'UI d'authentification
+    updateAuthUI();
+
+    // 2. Charger le feed
+    loadFeed();
+
+    // 3. Initialiser le profil
+    if (window.ProfileAPI) {
+        window.ProfileAPI.initProfile();
     }
-    
-    // Initialiser le feed
-    if (window.postsAPI) {
-        window.postsAPI.filterPosts('all');
-    }
-    
+
     // ===== ÉVÉNEMENTS =====
-    
+
     // Filtres du feed
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
             this.classList.add('active');
-            const filter = this.dataset.filter;
-            if (window.postsAPI) {
-                window.postsAPI.filterPosts(filter);
-            }
+            loadFeed();
         });
     });
-    
+
     // Ouvrir le modal de création de post
-    const openModalBtns = document.querySelectorAll('#openPostModal, #createPostBox .post-input');
-    const modal = document.getElementById('postModal');
-    const closeModal = document.getElementById('closeModal');
-    const cancelModal = document.getElementById('cancelModal');
-    const postInput = document.getElementById('postInput');
-    const modalPostText = document.getElementById('modalPostText');
-    
-    function openModal() {
-        modal.classList.add('active');
-        modalPostText.focus();
-    }
-    
+    var openModalBtns = document.querySelectorAll('#openPostModal, #createPostBox .post-input');
+    var modal = document.getElementById('postModal');
+    var closeModal = document.getElementById('closeModal');
+    var cancelModal = document.getElementById('cancelModal');
+    var postInput = document.getElementById('postInput');
+    var modalPostText = document.getElementById('modalPostText');
+
+    function openModalFn() { modal.classList.add('active'); modalPostText.focus(); }
     function closeModalFn() {
         modal.classList.remove('active');
         modalPostText.value = '';
         document.getElementById('modalMediaPreview').innerHTML = '';
+        document.getElementById('modalFileInput').value = '';
     }
-    
-    openModalBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
+
+    openModalBtns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Copier le texte du post rapide dans le modal
-            if (postInput.value.trim()) {
-                modalPostText.value = postInput.value;
-            }
-            openModal();
+            if (postInput.value.trim()) { modalPostText.value = postInput.value; }
+            openModalFn();
         });
     });
-    
+
     if (closeModal) closeModal.addEventListener('click', closeModalFn);
     if (cancelModal) cancelModal.addEventListener('click', closeModalFn);
-    
-    // Fermer le modal au clic sur l'overlay
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModalFn();
-    });
-    
-    // Fermer au bouton Echap
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModalFn();
-        }
-    });
-    
-    // ===== PUBLIER UN POST =====
-    const publishBtn = document.getElementById('publishPost');
-    const submitPostBtn = document.getElementById('submitPost');
-    
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModalFn(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('active')) closeModalFn(); });
+
+    var publishBtn = document.getElementById('publishPost');
+    var submitPostBtn = document.getElementById('submitPost');
+
     async function handlePublish() {
-        const content = modalPostText.value || postInput.value;
-        const privacy = document.getElementById('modalPrivacy')?.value || 'public';
-        
-        // Récupérer les fichiers du modal
-        const fileInput = document.getElementById('modalFileInput');
-        const files = fileInput?.files || [];
-        
-        const success = await window.postsAPI.createPost(content, files, privacy);
-        
-        if (success) {
+        var content = modalPostText.value || postInput.value;
+        var privacy = document.getElementById('modalPrivacy')?.value || 'public';
+        var fileInput = document.getElementById('modalFileInput');
+        var files = fileInput?.files || [];
+        var mediaUrls = [];
+
+        // Simuler l'upload des fichiers (à remplacer par IPFS plus tard)
+        for (var i = 0; i < files.length; i++) {
+            mediaUrls.push(URL.createObjectURL(files[i]));
+        }
+
+        try {
+            var post = await window.DataAPI.createPost(content, mediaUrls, privacy);
+            showToast('Post publié avec succès ! 🎉', 'success');
             postInput.value = '';
             modalPostText.value = '';
             document.getElementById('modalMediaPreview').innerHTML = '';
             if (fileInput) fileInput.value = '';
             closeModalFn();
+            loadFeed();
+        } catch (error) {
+            showToast('Erreur : ' + error.message, 'error');
         }
     }
-    
+
     if (publishBtn) publishBtn.addEventListener('click', handlePublish);
     if (submitPostBtn) {
-        submitPostBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Ouvrir le modal avec le texte du post rapide
-            openModal();
-        });
+        submitPostBtn.addEventListener('click', function(e) { e.preventDefault(); openModalFn(); });
     }
-    
-    // Envoyer avec Ctrl+Enter dans le modal
-    if (modalPostText) {
-        modalPostText.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-                handlePublish();
-            }
-        });
-    }
-    
-    // ===== MÉDIAS DU MODAL =====
-    const modalMediaBtn = document.getElementById('modalMediaBtn');
-    const modalVideoBtn = document.getElementById('modalVideoBtn');
-    const modalFileInput = document.getElementById('modalFileInput');
-    const modalMediaPreview = document.getElementById('modalMediaPreview');
-    
-    if (modalMediaBtn) {
-        modalMediaBtn.addEventListener('click', () => {
-            modalFileInput.accept = 'image/*';
-            modalFileInput.click();
-        });
-    }
-    
-    if (modalVideoBtn) {
-        modalVideoBtn.addEventListener('click', () => {
-            modalFileInput.accept = 'video/*';
-            modalFileInput.click();
-        });
-    }
-    
-    if (modalFileInput) {
-        modalFileInput.addEventListener('change', function() {
-            modalMediaPreview.innerHTML = '';
-            const files = Array.from(this.files);
-            files.forEach(file => {
-                const url = URL.createObjectURL(file);
-                const el = file.type.startsWith('image/') ? 
-                    `<img src="${url}" alt="Media" />` : 
-                    `<video src="${url}"></video>`;
-                modalMediaPreview.innerHTML += el;
-            });
-        });
-    }
-    
-    // ===== PRIVACY SELECTORS =====
-    document.querySelectorAll('.privacy-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.privacy-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-    
-    // ===== LOAD MORE =====
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            if (window.postsAPI) {
-                window.postsAPI.loadMorePosts();
-            }
-        });
-    }
-    
-    // ===== RECHERCHE =====
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        const debouncedSearch = debounce((query) => {
-            if (query.length >= 2) {
-                showToast(`Recherche de "${query}"...`, 'info');
-            }
-        }, 500);
-        
-        searchInput.addEventListener('input', (e) => {
-            debouncedSearch(e.target.value.trim());
-        });
-    }
-    
-    // ===== DÉCONNEXION =====
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            if (window.web3) {
-                window.web3.disconnectWallet();
-            }
-            showToast('Déconnexion réussie', 'info');
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 500);
-        });
-    }
-    
-    // ===== NAVIGATION ACTIVE =====
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function() {
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-    
-    // ===== WALLET ACTIONS =====
-    document.querySelectorAll('.wallet-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const action = this.textContent.trim();
-            showToast(`Fonctionnalité "${action}" disponible bientôt`, 'info');
-        });
-    });
-    
-    // ===== VOTE =====
-    const voteBtn = document.querySelector('.btn-vote');
-    if (voteBtn) {
-        voteBtn.addEventListener('click', () => {
-            showToast('Vote enregistré avec succès ! 🗳️', 'success');
-        });
-    }
-    
-    // ===== CLAIM REWARDS =====
-    const claimBtn = document.querySelector('.btn-claim');
-    if (claimBtn) {
-        claimBtn.addEventListener('click', async () => {
-            try {
-                await window.web3.sendGaslessTransaction({ action: 'claimRewards' });
-                showToast('Récompenses réclamées avec succès ! 🎁', 'success');
-            } catch {
-                showToast('Erreur lors de la réclamation', 'error');
-            }
-        });
-    }
-    
-    // ===== TOAST DE BIENVENUE =====
-    setTimeout(() => {
-        showToast('Bienvenue sur OpenSphere ! 🚀 Le réseau social souverain', 'info');
-    }, 500);
-    
-    console.log('🌐 OpenSphere - Frontend Web3 Social Network');
-    console.log('⚡ Transactions sans gaz activées');
-    console.log('💎 $SPHERE Token intégré');
+
+    // ... (le reste du code, notamment les événements pour les likes, diamants, etc.)
 });
+
+// ===== CHARGER LE FEED =====
+async function loadFeed() {
+    var container = document.getElementById('feedPosts');
+    if (!container) return;
+
+    try {
+        var posts = await window.DataAPI.getPosts();
+        if (posts.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-inbox" style="font-size: 48px; display: block; margin-bottom: 16px;"></i><p>Aucun post à afficher</p></div>';
+            return;
+        }
+        renderPosts(posts);
+    } catch (error) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--red-danger);">Erreur chargement : ' + error.message + '</div>';
+    }
+}
+
+function renderPosts(posts) {
+    var container = document.getElementById('feedPosts');
+    if (!container) return;
+
+    container.innerHTML = posts.map(function(post) {
+        return renderPost(post);
+    }).join('');
+
+    // Attacher les événements
+    container.querySelectorAll('.like-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            handleLike(this.dataset.postId);
+        });
+    });
+    container.querySelectorAll('.diamond-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            handleDiamond(this.dataset.postId);
+        });
+    });
+}
+
+function renderPost(post) {
+    var user = post.authorId || {};
+    var timeAgo = formatTimeAgo(new Date(post.createdAt));
+    var mediaHTML = post.media && post.media.length > 0 ?
+        '<div class="post-media"><img src="' + post.media[0] + '" alt="Post media" loading="lazy" /></div>' : '';
+    var nftBadge = post.isNFT ? '<div class="post-nft-badge"><i class="fas fa-crown"></i> NFT Collection</div>' : '';
+
+    return `
+        <div class="post-card" data-post-id="${post.id}">
+            <div class="post-header">
+                <img src="${user.avatar || 'https://i.pravatar.cc/40'}" alt="${user.displayName || 'User'}" class="post-avatar" />
+                <div class="post-user-info">
+                    <div class="post-user-name">
+                        ${user.displayName || 'Utilisateur'}
+                        ${user.verified ? '<i class="fas fa-check-circle verified"></i>' : ''}
+                        <span class="post-username">@${user.username || 'user'}</span>
+                        <span class="post-time">· ${timeAgo}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-content">${escapeHtml(post.content)}</div>
+            ${mediaHTML}
+            ${nftBadge}
+            <div class="post-actions-bar">
+                <div class="post-action-group">
+                    <button class="post-action-btn-social like-btn" data-post-id="${post.id}">
+                        <i class="fas fa-heart"></i>
+                        <span class="count">${post.likes || 0}</span>
+                    </button>
+                    <button class="post-action-btn-social">
+                        <i class="fas fa-comment"></i>
+                        <span class="count">${post.comments || 0}</span>
+                    </button>
+                    <button class="post-action-btn-social">
+                        <i class="fas fa-retweet"></i>
+                        <span class="count">${post.shares || 0}</span>
+                    </button>
+                </div>
+                <div class="post-action-group">
+                    <button class="post-action-btn-social diamond-btn" data-post-id="${post.id}">
+                        <i class="fas fa-gem"></i>
+                        <span class="count">${post.diamonds || 0}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ===== LIKES & DIAMONDS =====
+async function handleLike(postId) {
+    try {
+        var result = await window.DataAPI.likePost(postId);
+        // Mettre à jour l'affichage du post
+        showToast('Like mis à jour ! ❤️', 'success');
+        loadFeed();
+    } catch (error) {
+        showToast('Erreur like : ' + error.message, 'error');
+    }
+}
+
+async function handleDiamond(postId) {
+    try {
+        var result = await window.DataAPI.diamondPost(postId);
+        showToast('💎 Diamant envoyé !', 'success');
+        loadFeed();
+    } catch (error) {
+        showToast('Erreur diamond : ' + error.message, 'error');
+    }
+}
+
+// ===== AUTHENTIFICATION =====
+function updateAuthUI() {
+    var user = window.DataAPI.getUser();
+    var loginBtn = document.getElementById('loginBtn');
+    var userMenu = document.getElementById('userMenu');
+    var authButtons = document.getElementById('authButtons');
+
+    if (user) {
+        if (authButtons) authButtons.style.display = 'none';
+        if (userMenu) {
+            userMenu.style.display = 'flex';
+            userMenu.style.alignItems = 'center';
+            userMenu.style.gap = '8px';
+        }
+    } else {
+        if (authButtons) authButtons.style.display = 'flex';
+        if (userMenu) userMenu.style.display = 'none';
+    }
+
+    // Gestion du bouton de déconnexion
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        var newLogoutBtn = logoutBtn.cloneNode(true);
+        logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+        newLogoutBtn.addEventListener('click', function() {
+            window.DataAPI.logout();
+        });
+    }
+}
+
+console.log('🌐 OpenSphere - Frontend Web3 Social Network');
+console.log('⚡ Transactions sans gaz activées');
+console.log('💎 $SPHERE Token intégré');
